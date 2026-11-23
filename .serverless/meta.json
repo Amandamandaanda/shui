@@ -1,0 +1,218 @@
+{
+  "/Users/amandatana/Desktop/shui/serverless.yml": {
+    "versionFramework": "4.46.0",
+    "servicePath": "/Users/amandatana/Desktop/shui/serverless.yml",
+    "serviceConfigFileName": "serverless.yml",
+    "service": {
+      "org": "amandatanaskovic",
+      "service": "shui",
+      "frameworkVersion": "4",
+      "provider": {
+        "name": "aws",
+        "runtime": "nodejs24.x",
+        "region": "eu-north-1",
+        "stage": "dev",
+        "environment": {
+          "USERS_TABLE": "shui-dev-users",
+          "POSTS_TABLE": "shui-dev-posts"
+        },
+        "iam": {
+          "role": "arn:aws:iam::239998536284:role/cupify-lambda-role"
+        },
+        "versionFunctions": true
+      },
+      "functions": {
+        "register": {
+          "handler": "functions/auth/register/index.handler",
+          "events": [
+            {
+              "httpApi": {
+                "path": "/auth/register",
+                "method": "POST"
+              }
+            }
+          ],
+          "name": "shui-dev-register"
+        },
+        "login": {
+          "handler": "functions/auth/login/index.handler",
+          "events": [
+            {
+              "httpApi": {
+                "path": "/auth/login",
+                "method": "POST"
+              }
+            }
+          ],
+          "name": "shui-dev-login"
+        },
+        "getPosts": {
+          "handler": "functions/posts/getPosts/index.handler",
+          "events": [
+            {
+              "httpApi": {
+                "path": "/posts",
+                "method": "GET"
+              }
+            }
+          ],
+          "name": "shui-dev-getPosts"
+        },
+        "getPost": {
+          "handler": "functions/posts/getPost/index.handler",
+          "events": [
+            {
+              "httpApi": {
+                "path": "/posts/{postId}",
+                "method": "GET"
+              }
+            }
+          ],
+          "name": "shui-dev-getPost"
+        },
+        "addPost": {
+          "handler": "functions/posts/addPost/index.handler",
+          "events": [
+            {
+              "httpApi": {
+                "path": "/posts",
+                "method": "POST"
+              }
+            }
+          ],
+          "name": "shui-dev-addPost"
+        },
+        "updatePost": {
+          "handler": "functions/posts/updatePost/index.handler",
+          "events": [
+            {
+              "httpApi": {
+                "path": "/posts/{postId}",
+                "method": "PUT"
+              }
+            }
+          ],
+          "name": "shui-dev-updatePost"
+        },
+        "deletePost": {
+          "handler": "functions/posts/deletePost/index.handler",
+          "events": [
+            {
+              "httpApi": {
+                "path": "/posts/{postId}",
+                "method": "DELETE"
+              }
+            }
+          ],
+          "name": "shui-dev-deletePost"
+        }
+      },
+      "resources": {
+        "Resources": {
+          "UsersTable": {
+            "Type": "AWS::DynamoDB::Table",
+            "Properties": {
+              "TableName": "shui-dev-users",
+              "BillingMode": "PAY_PER_REQUEST",
+              "AttributeDefinitions": [
+                {
+                  "AttributeName": "username",
+                  "AttributeType": "S"
+                }
+              ],
+              "KeySchema": [
+                {
+                  "AttributeName": "username",
+                  "KeyType": "HASH"
+                }
+              ]
+            }
+          },
+          "PostsTable": {
+            "Type": "AWS::DynamoDB::Table",
+            "Properties": {
+              "TableName": "shui-dev-posts",
+              "BillingMode": "PAY_PER_REQUEST",
+              "AttributeDefinitions": [
+                {
+                  "AttributeName": "id",
+                  "AttributeType": "S"
+                },
+                {
+                  "AttributeName": "feedKey",
+                  "AttributeType": "S"
+                },
+                {
+                  "AttributeName": "createdAtId",
+                  "AttributeType": "S"
+                }
+              ],
+              "KeySchema": [
+                {
+                  "AttributeName": "id",
+                  "KeyType": "HASH"
+                }
+              ],
+              "GlobalSecondaryIndexes": [
+                {
+                  "IndexName": "posts-by-date-index",
+                  "KeySchema": [
+                    {
+                      "AttributeName": "feedKey",
+                      "KeyType": "HASH"
+                    },
+                    {
+                      "AttributeName": "createdAtId",
+                      "KeyType": "RANGE"
+                    }
+                  ],
+                  "Projection": {
+                    "ProjectionType": "ALL"
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "provider": {
+      "name": "aws",
+      "runtime": "nodejs24.x",
+      "region": "eu-north-1",
+      "stage": "dev",
+      "environment": {
+        "USERS_TABLE": "shui-dev-users",
+        "POSTS_TABLE": "shui-dev-posts"
+      },
+      "iam": {
+        "role": "arn:aws:iam::239998536284:role/cupify-lambda-role"
+      },
+      "versionFunctions": true
+    },
+    "dashboard": {
+      "isEnabledForService": false,
+      "requiredAuthentication": false,
+      "orgFeaturesInUse": null,
+      "orgObservabilityIntegrations": null,
+      "serviceAppId": null,
+      "serviceProvider": null,
+      "instanceParameters": null
+    },
+    "serviceRawFile": "\norg: ${file(./local.yml):org}\nservice: shui\n\nframeworkVersion: '4'\n\nprovider:\n  name: aws\n  runtime: nodejs24.x\n  region: eu-north-1\n  stage: dev\n\n  environment:\n    USERS_TABLE: ${self:service}-${sls:stage}-users\n    POSTS_TABLE: ${self:service}-${sls:stage}-posts\n\n  iam:\n    role: ${file(./local.yml):role}\n\nfunctions:\n  register:\n    handler: functions/auth/register/index.handler\n    events:\n      - httpApi:\n          path: /auth/register\n          method: POST\n\n  login:\n    handler: functions/auth/login/index.handler\n    events:\n      - httpApi:\n          path: /auth/login\n          method: POST\n\n  getPosts:\n    handler: functions/posts/getPosts/index.handler\n    events:\n      - httpApi:\n          path: /posts\n          method: GET\n\n  getPost:\n    handler: functions/posts/getPost/index.handler\n    events:\n      - httpApi:\n          path: /posts/{postId}\n          method: GET\n\n  addPost:\n    handler: functions/posts/addPost/index.handler\n    events:\n      - httpApi:\n          path: /posts\n          method: POST\n\n  updatePost:\n    handler: functions/posts/updatePost/index.handler\n    events:\n      - httpApi:\n          path: /posts/{postId}\n          method: PUT\n\n  deletePost:\n    handler: functions/posts/deletePost/index.handler\n    events:\n      - httpApi:\n          path: /posts/{postId}\n          method: DELETE\n\nresources:\n  Resources:\n    UsersTable:\n      Type: AWS::DynamoDB::Table\n      Properties:\n        TableName: ${self:service}-${sls:stage}-users\n        BillingMode: PAY_PER_REQUEST\n        AttributeDefinitions:\n          - AttributeName: username\n            AttributeType: S\n        KeySchema:\n          - AttributeName: username\n            KeyType: HASH\n\n    PostsTable:\n      Type: AWS::DynamoDB::Table\n      Properties:\n        TableName: ${self:service}-${sls:stage}-posts\n        BillingMode: PAY_PER_REQUEST\n        AttributeDefinitions:\n          - AttributeName: id\n            AttributeType: S\n          - AttributeName: feedKey\n            AttributeType: S\n          - AttributeName: createdAtId\n            AttributeType: S\n        KeySchema:\n          - AttributeName: id\n            KeyType: HASH\n        GlobalSecondaryIndexes:\n          - IndexName: posts-by-date-index\n            KeySchema:\n              - AttributeName: feedKey\n                KeyType: HASH\n              - AttributeName: createdAtId\n                KeyType: RANGE\n            Projection:\n              ProjectionType: ALL\n",
+    "command": [
+      "print"
+    ],
+    "options": {},
+    "orgId": "22b87222-43df-4795-abbf-22387f5e36e9",
+    "orgName": "amandatanaskovic",
+    "userId": "pnLmbYNp5QN8CjtQkq",
+    "userName": "amandatanaskovic",
+    "serviceProviderAwsAccountId": "239998536284",
+    "serviceProviderAwsCfStackId": null,
+    "serviceProviderAwsCfStackCreated": null,
+    "serviceProviderAwsCfStackUpdated": null,
+    "serviceProviderAwsCfStackStatus": null,
+    "serviceProviderAwsCfStackOutputs": null
+  }
+}
