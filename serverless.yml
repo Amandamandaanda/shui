@@ -13,6 +13,7 @@ provider:
   environment:
     USERS_TABLE: ${self:service}-${sls:stage}-users
     POSTS_TABLE: ${self:service}-${sls:stage}-posts
+    JWT_SECRET: ${env:JWT_SECRET}
 
   iam:
     role: ${file(./local.yml):role}
