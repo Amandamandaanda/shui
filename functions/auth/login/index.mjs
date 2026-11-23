@@ -7,29 +7,34 @@ import { comparePasswords } from "../../../utils/bcrypt.mjs";
 import { signToken } from "../../../utils/jwt.mjs";
 import { sendResponse } from "../../../responses/index.mjs";
 import { errorHandler } from "../../../middlewares/errorHandler.mjs";
+import { loginSchema } from "../../../models/auth.mjs";
 
 export const handler = middy(async (event) => {
 
-  const { username, password } = event.body;
+  const result = loginSchema.safeParse(event.body);
 
-  if (!username || !password) {
-  throw createError(400, "Username and password are required");
-}
+  if (!result.success) {
+    throw createError(400, result.error.issues[0].message);
 
+  }
+
+  const { username, password } = result.data;
   const user = await getUserByUsername(username);
 
   if (!user) throw createError(401, "Invalid username or password");
+
   if (!await comparePasswords(password, user.passwordHash)) {
     throw createError(401, "Invalid username or password");
   }
 
-  const token = signToken({ 
-    username 
-});
+  const token = signToken({ username });
 
   return sendResponse(200, {
-    message: "User logged in", token,
+    message: "Login successful",
+    token,
+    username,
   });
+  
 })
   .use(httpJsonBodyParser())
   .use(errorHandler());
