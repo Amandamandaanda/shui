@@ -2,13 +2,13 @@
 
 A REST API for a social platform where users can register, log in and create posts.
 
-The API is built with Node.js, AWS Lambda and DynamoDB using the Serverless Framework.
+The API is built with Node.js, AWS Lambda and Amazon DynamoDB using the Serverless Framework.
 
 ## Features
 
-- Register a new user
+- Register new users
 - Log in with username and password
-- Secure password hashing with bcrypt
+- Secure password hashing using bcrypt
 - JWT-based authentication
 - Create posts (authenticated users only)
 - Get all posts
@@ -17,8 +17,8 @@ The API is built with Node.js, AWS Lambda and DynamoDB using the Serverless Fram
 - Update posts (only the post owner)
 - Delete posts (only the post owner)
 - Input validation using Zod
-- Centralized error handling with Middy
-- Store users and posts in AWS DynamoDB
+- Centralized error handling using Middy
+- Store users and posts in Amazon DynamoDB
 
 ## Technologies
 
@@ -36,11 +36,11 @@ The API is built with Node.js, AWS Lambda and DynamoDB using the Serverless Fram
 
 ## API URL
 
-Base URL:
+**Base URL:**
 
 https://jdr5xpsv48.execute-api.eu-north-1.amazonaws.com
 
-AWS Region: `eu-north-1`
+**AWS Region:** `eu-north-1`
 
 ## API Endpoints
 
@@ -60,19 +60,21 @@ The API uses JSON Web Tokens (JWT) to authenticate users.
 
 When a user logs in successfully, the API returns a token that is valid for one hour.
 
-Protected endpoints require the token in the Authorization header:
+Protected endpoints require a valid token in the Authorization header:
 
-`Authorization: Bearer YOUR_TOKEN`
+```http
+Authorization: Bearer YOUR_TOKEN
+```
 
 Users can only update or delete their own posts.
 
-The username used when creating a post is taken from the authenticated user's token, not from the request body.
+The username used when creating a post is taken from the authenticated user's JWT token, not from the request body.
 
 ## Request Examples
 
 ### Register a user
 
-POST `/auth/register`
+`POST /auth/register`
 
 ```json
 {
@@ -83,7 +85,7 @@ POST `/auth/register`
 
 ### Log in
 
-POST `/auth/login`
+`POST /auth/login`
 
 ```json
 {
@@ -94,7 +96,7 @@ POST `/auth/login`
 
 ### Create a post
 
-POST `/posts`
+`POST /posts`
 
 Requires a valid JWT token.
 
@@ -107,7 +109,7 @@ Requires a valid JWT token.
 
 ### Update a post
 
-PUT `/posts/{postId}`
+`PUT /posts/{postId}`
 
 Requires a valid JWT token and ownership of the post.
 
@@ -120,7 +122,7 @@ Requires a valid JWT token and ownership of the post.
 
 ### Filter posts by username
 
-GET `/posts?username=testuser`
+`GET /posts?username=testuser`
 
 Returns posts created by the specified user.
 
@@ -129,21 +131,36 @@ Returns posts created by the specified user.
 The API uses Amazon DynamoDB with two tables:
 
 - **Users table:** Stores usernames and hashed passwords.
-- **Posts table:** Stores posts, including ID, username, title, content and timestamps.
+- **Posts table:** Stores posts and their information.
 
 Passwords are hashed using bcrypt before they are stored.
 
-Posts contain the following properties:
+Each post contains the following properties:
 
 - `id`
 - `username`
 - `isGuest`
 - `title`
 - `content`
+- `feedKey`
 - `createdAt`
 - `updatedAt`
+- `createdAtId`
 
 Timestamps use ISO 8601 format.
+
+### Global Secondary Index (GSI)
+
+The posts table uses a Global Secondary Index called `posts-by-date-index`.
+
+The index contains:
+
+- `feedKey` as the partition key.
+- `createdAtId` as the sort key.
+
+The index is used with DynamoDB `QueryCommand` to retrieve posts efficiently and sort them by creation date, with the newest posts first.
+
+Posts can also be filtered by username.
 
 ## Validation and Error Handling
 
@@ -184,19 +201,27 @@ The API uses appropriate HTTP status codes, including:
 
 1. Clone the repository:
 
-   `git clone https://github.com/Amandamandaanda/shui.git`
+```bash
+git clone https://github.com/Amandamandaanda/shui.git
+```
 
 2. Navigate into the project:
 
-   `cd shui`
+```bash
+cd shui
+```
 
 3. Install dependencies:
 
-   `npm install`
+```bash
+npm install
+```
 
-4. Create a `.env` file in the project root and add:
+4. Create a `.env` file in the project root and add a secure JWT secret:
 
-   `JWT_SECRET=your_secure_secret`
+```env
+JWT_SECRET=your_secure_secret
+```
 
 5. Configure `local.yml` with the required Serverless organization and IAM role settings.
 
@@ -206,11 +231,15 @@ The API uses appropriate HTTP status codes, including:
 
 Deploy the API to AWS using:
 
-`npx serverless deploy`
+```bash
+npx serverless deploy
+```
 
 To package the project without deploying:
 
-`npx serverless package`
+```bash
+npx serverless package
+```
 
 ## Environment Variables
 
@@ -224,12 +253,12 @@ The DynamoDB table names are configured automatically through Serverless Framewo
 
 The project uses:
 
-- AWS Lambda for executing API functions
-- API Gateway for handling HTTP requests
-- DynamoDB for persistent data storage
-- IAM for access permissions
+- **AWS Lambda** – Executes the API functions.
+- **AWS API Gateway** – Handles HTTP requests.
+- **Amazon DynamoDB** – Stores users and posts.
+- **AWS IAM** – Manages permissions for AWS resources.
 
-The DynamoDB tables are created and configured through `serverless.yml`.
+The DynamoDB tables and Global Secondary Index are created and configured through `serverless.yml`.
 
 ## Author
 
