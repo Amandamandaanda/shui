@@ -1,10 +1,10 @@
 import middy from "@middy/core";
-import { ScanCommand } from "@aws-sdk/lib-dynamodb";
 import db from "../../../services/db.mjs";
 import { sendResponse } from "../../../responses/index.mjs";
 import { errorHandler } from "../../../middlewares/errorHandler.mjs";
 import { postsQuerySchema } from "../../../models/posts.mjs";
 import { createError } from "@middy/util";
+import { QueryCommand } from "@aws-sdk/lib-dynamodb";
 
 export const handler = middy(async (event) => {
 
@@ -19,11 +19,15 @@ export const handler = middy(async (event) => {
   const { username } = result.data;
 
 
-  const postsResult = await db.send(
-    new ScanCommand({
-      TableName: process.env.POSTS_TABLE,
-    })
-  );
+  const postsResult = await db.send(new QueryCommand({
+    TableName: process.env.POSTS_TABLE,
+    IndexName: "posts-by-date-index",
+    KeyConditionExpression: "feedKey = :feedKey",
+    ExpressionAttributeValues: {
+      ":feedKey": "POSTS",
+    },
+    ScanIndexForward: false,
+  }));
 
   const posts = postsResult.Items ?? [];
 
@@ -34,6 +38,6 @@ export const handler = middy(async (event) => {
     (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
   );
 
-  
+
   return sendResponse(200, filteredPosts);
 }).use(errorHandler());

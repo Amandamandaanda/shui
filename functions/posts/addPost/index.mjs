@@ -16,15 +16,18 @@ export const handler = middy(async (event) => {
     const username = event.user.username;
 
     const now = new Date().toISOString();
+    const id = randomUUID();
 
     const post = {
-        id: randomUUID(),
+        id,
         username,
         isGuest: false,
         title,
         content,
+        feedKey: "POSTS",
         createdAt: now,
         updatedAt: now,
+        createdAtId: `${now}#${id}`,
     };
 
 
