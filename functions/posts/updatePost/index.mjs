@@ -36,8 +36,7 @@ export const handler = middy(async (event) => {
 
   const updatedAt = new Date().toISOString();
 
-  await db.send(
-
+  const updateResult = await db.send(
     new UpdateCommand({
         TableName: process.env.POSTS_TABLE,
         Key: { id: postId },
@@ -47,13 +46,14 @@ export const handler = middy(async (event) => {
             ":content": content,
             ":updatedAt": updatedAt,
       },
-      
+      ReturnValues: "ALL_NEW",
+
     })
   );
 
   return sendResponse(200, {
-
     message: "Post updated successfully",
+    post: updateResult.Attributes,
   });
 })
   .use(httpJsonBodyParser())
