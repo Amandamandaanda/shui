@@ -8,6 +8,6 @@ export const postSchema = z.object({
      content: z.string().trim().min(1, "Content is required"),
 });
 
-export const postQuerySchema = z.object({
+export const postsQuerySchema = z.object({
     username: z.string().trim().min(1, "Username cannot be empty").optional(),
 });
