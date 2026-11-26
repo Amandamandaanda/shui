@@ -37,14 +37,23 @@ export const handler = middy(async (event) => {
         Item: post,
     })
   );
+  const responsePost = {
+    id: post.id,
+    username: post.username,
+    isGuest: post.isGuest,
+    title: post.title,
+    content: post.content,
+    createdAt: post.createdAt,
+    updatedAt: post.updatedAt,
+  };
 
-
+  
   return sendResponse(201, {
     message: "Post created successfully",
-    post,
+    post: responsePost,
   });
 })
-.use(httpJsonBodyParser())
-.use(validateToBody(postSchema))
-.use(authenticate())
-.use(errorHandler());
+  .use(httpJsonBodyParser())
+  .use(validateToBody(postSchema))
+  .use(authenticate())
+  .use(errorHandler());
