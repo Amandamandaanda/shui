@@ -21,6 +21,16 @@ export const handler = middy(async (event) => {
     throw createError(404, "Post not found");
   }
 
-  
-  return sendResponse(200, result.Item);
+  const post = {
+    id: result.Item.id,
+    username: result.Item.username,
+    isGuest: result.Item.isGuest,
+    title: result.Item.title,
+    content: result.Item.content,
+    createdAt: result.Item.createdAt,
+    updatedAt: result.Item.updatedAt,
+  }
+
+
+  return sendResponse(200, post);
 }).use(errorHandler());

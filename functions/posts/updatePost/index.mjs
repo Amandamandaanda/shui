@@ -51,9 +51,21 @@ export const handler = middy(async (event) => {
     })
   );
 
+  const updatedPost = updateResult.Attributes;
+
+  const post = {
+    id: updatedPost.id,
+    username: updatedPost.username,
+    isGuest: updatedPost.isGuest,
+    title: updatedPost.title,
+    content: updatedPost.content,
+    createdAt: updatedPost.createdAt,
+    updatedAt: updatedPost.updatedAt,
+  };
+
   return sendResponse(200, {
     message: "Post updated successfully",
-    post: updateResult.Attributes,
+    post,
   });
 })
   .use(httpJsonBodyParser())

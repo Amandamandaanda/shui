@@ -38,6 +38,16 @@ export const handler = middy(async (event) => {
     (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
   );
 
+    const responsePosts = filteredPosts.map((post) => ({
+        id: post.id,
+        username: post.username,
+        isGuest: post.isGuest,
+        title: post.title,
+        content: post.content,
+        createdAt: post.createdAt,
+        updatedAt: post.updatedAt,
+    }));
 
-  return sendResponse(200, filteredPosts);
+
+  return sendResponse(200, responsePosts);
 }).use(errorHandler());
