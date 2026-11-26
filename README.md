@@ -1,8 +1,6 @@
 # Shui API
 
-A REST API for a social platform where users can register, log in and create posts.
-
-The API is built with Node.js, AWS Lambda and Amazon DynamoDB using the Serverless Framework.
+A REST API for a message board where users can register, log in, create posts and manage their own content.
 
 ## Features
 
@@ -217,28 +215,37 @@ cd shui
 npm install
 ```
 
-4. Create a `.env` file in the project root and add a secure JWT secret:
+4. Copy the example environment file:
+
+```bash
+cp .env.example .env
+```
+
+5. Add a secure JWT secret to your `.env` file:
 
 ```env
 JWT_SECRET=your_secure_secret
 ```
 
-5. Configure `local.yml` with the required Serverless organization and IAM role settings.
+6. Create a `local.yml` file in the project root:
 
-6. Make sure your AWS credentials are configured.
+```yaml
+org: your-serverless-org
+role: arn:aws:iam::YOUR_AWS_ACCOUNT_ID:role/YOUR_LAMBDA_ROLE
+```
+
+Replace the example values with your own Serverless organization and IAM role.
+
+7. Make sure your AWS credentials are configured.
+
+Note: The .env and local.yml files contain local configuration and are not included in the repository. The .env.example file provides a template for the required environment variable.
 
 ### Deployment
 
-Deploy the API to AWS using:
+Deploy the API to AWS:
 
 ```bash
 npx serverless deploy
-```
-
-To package the project without deploying:
-
-```bash
-npx serverless package
 ```
 
 ## Environment Variables
