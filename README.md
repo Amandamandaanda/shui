@@ -40,6 +40,10 @@ https://jdr5xpsv48.execute-api.eu-north-1.amazonaws.com
 
 **AWS Region:** `eu-north-1`
 
+**Example endpoint (GET):**
+
+https://jdr5xpsv48.execute-api.eu-north-1.amazonaws.com/posts
+
 ## API Endpoints
 
 | Method | Endpoint | Description | Authentication |
@@ -186,7 +190,7 @@ The API uses appropriate HTTP status codes, including:
 - `409 Conflict` – Username already exists
 - `500 Internal Server Error` – Server error
 
-## Running Locally
+## Setup and deployment
 
 ### Requirements
 
