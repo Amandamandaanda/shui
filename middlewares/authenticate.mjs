@@ -2,25 +2,39 @@
 import createError from "http-errors";
 import { verifyToken } from "../utils/jwt.mjs";
 
+const BEARER_PATTERN = /^Bearer\s+(\S+)$/i;
+
 export const authenticate = () => ({
   before: (handler) => {
-    const authHeader = handler.event.headers?.authorization;
+    const authHeader = handler.event.headers?.authorization ??
+    handler.event.headers?.Authorization;
 
     if (!authHeader) {
       throw createError(401, "Authorization header missing");
     }
 
-    const token = authHeader.split(" ")[1];
+    const match = authHeader.match(BEARER_PATTERN);
 
-    if (!token) {
-      throw createError(401, "Token missing");
+    if (!match) {
+      throw createError(401, "Invalid authorization format");
     }
 
     try {
-      const user = verifyToken(token);
-      handler.event.user = user;
+      const user = verifyToken(match[1]);
+      if (typeof user.username !== "string") {
+        throw createError(401, "Invalid token");
+      }
+      handler.event.user = { 
+        username: user.username,
+      };
     } catch (error) {
-      throw createError(401, "Invalid token");
+        if (error.statusCode === 401) {
+            throw error
     }
-  },
+    if (error.name === "TokenExpiredError") {
+        throw createError(401, "Token has expired");
+    }
+    throw createError(401, "Invalid token");
+  }
+},
 });
